@@ -341,9 +341,6 @@ class Window(object):
         self.config_tree.configure(yscrollcommand=config_scrollbar.set)
         config_scrollbar.configure(command=self.config_tree.yview)
 
-        config_delete_button = Button(config_tab, text='Delete selected component', width=25, command=confirm_delete)
-        config_delete_button.grid(row=3, column=2, padx=(30, 10), pady=(60, 0))
-
         self.config_edit_component_label = Label(config_tab, text='Edit selected component:')
         self.config_edit_component_label.grid(row=5, column=2, padx=(34, 0), sticky=SW)
 
@@ -355,6 +352,11 @@ class Window(object):
                                               command=partial(edit_component, self.configure_combobox, self.config_tree,
                                                               self.component_to_edit, self.edit_component_entry))
         config_edit_component_button.grid(row=7, column=2, padx=(30, 10))
+
+        config_delete_button = Button(config_tab, text='Delete selected component', width=25,
+                                      command=partial(delete_selected_component, self.configure_combobox,
+                                                      self.config_tree, self.edit_component_entry))
+        config_delete_button.grid(row=3, column=2, padx=(30, 10), pady=(60, 0))
 
         config_exit_button = Button(config_tab, text="Quit", width=25, command=exit_application)
         config_exit_button.grid(row=12, column=2, padx=(30, 10))
@@ -376,16 +378,6 @@ class Window(object):
     def clear_component_entry_and_config_tree(self):
         self.edit_component_entry.delete(0, END)
         self.config_tree.delete(*self.config_tree.get_children())
-
-
-def confirm_delete():
-    confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?',
-                                                 icon='warning')
-    if confirm_delete_info == 'yes':
-        pass
-    else:
-        pass
-
 
 # Exit application function attached to Quit button on each tab and delete window protocol
 
@@ -451,7 +443,8 @@ def add_component(component_type_combobox, component, component_entry_widget, co
         messagebox.showinfo('Cancelled', 'No changes were made to your repository.')
 
 
-# Function to create list of selected components from repository and insert into single-column treeview
+# Function to create list of selected components from repository and insert into single-column treeview on Configuration
+# tab
 
 
 def view_components(component_treeview, component_combobox_ref):
@@ -484,7 +477,7 @@ def view_components(component_treeview, component_combobox_ref):
     except IndexError:
         print("Index not found")
 
-# Function to edit component listed in edit component entry box
+# Function to edit component listed in edit component entry box on Configuration tab
 
 
 def edit_component(component_combobox_ref, component_treeview, component_to_edit, edit_component_widget):
@@ -522,6 +515,51 @@ def edit_component(component_combobox_ref, component_treeview, component_to_edit
                 print("Index out of bounds.")
     else:
         messagebox.showinfo('Cancelled', 'No changes were made to your repository.')
+
+# Function to delete component selected from Configuration tab component repository treeview
+
+
+def delete_selected_component(component_combobox_ref, component_treeview, edit_component_widget):
+    component_type = component_combobox_ref.current()
+    if component_type == 0:
+        messagebox.showwarning('Error', 'You must select the component to delete.', icon='warning')
+    else:
+        confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?',
+                                                    icon='warning')
+        if confirm_delete_info == 'yes':
+            item_iid = component_treeview.selection()[0]
+            id_in_table = component_treeview.item(item_iid)['text']
+            try:
+                if component_type == 1:
+                    db.delete_gun(id_in_table)
+                elif component_type == 2:
+                    db.delete_calibre(id_in_table)
+                elif component_type == 3:
+                    db.delete_powder_type(id_in_table)
+                elif component_type == 4:
+                    db.delete_bullet_weight(id_in_table)
+                elif component_type == 5:
+                    db.delete_bullet_type(id_in_table)
+                elif component_type == 6:
+                    db.delete_primer(id_in_table)
+                elif component_type == 7:
+                    db.delete_case_type(id_in_table)
+                messagebox.showinfo('Deleted', 'The component was successfully deleted from your repository.')
+                edit_component_widget.delete(0, END)
+                view_components(component_treeview, component_combobox_ref)
+            except:
+                messagebox.showwarning('Error', 'Something went wrong and no changes were made.', icon='warning')
+        else:
+            messagebox.showinfo('Cancelled', 'No changes were made to your repository.')
+
+
+def confirm_delete():
+    confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?',
+                                                 icon='warning')
+    if confirm_delete_info == 'yes':
+        pass
+    else:
+        pass
 
 
 window = Tk()
