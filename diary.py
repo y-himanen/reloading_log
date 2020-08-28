@@ -180,9 +180,7 @@ class Window(object):
 
         entry_gun_selection = StringVar()
         entry_gun_combobox = ttk.Combobox(entry_tab, width=25, value=entry_gun_selection, state='readonly')
-        entry_gun_combobox['values'] = ['Select component',
-                                        'Dummy data',
-                                        'Bang bang']
+        entry_gun_combobox['values'] = guns_from_repository()
         entry_gun_combobox.current(0)
         entry_gun_combobox.grid(row=1, column=1, pady=5)
 
@@ -191,9 +189,7 @@ class Window(object):
 
         entry_calibre_selection = StringVar()
         entry_calibre_combobox = ttk.Combobox(entry_tab, width=25, value=entry_calibre_selection, state='readonly')
-        entry_calibre_combobox['values'] = ['Select component',
-                                            'Dummy data',
-                                            'Bang bang']
+        entry_calibre_combobox['values'] = calibres_from_repository()
         entry_calibre_combobox.current(0)
         entry_calibre_combobox.grid(row=2, column=1, pady=5)
 
@@ -203,9 +199,7 @@ class Window(object):
         entry_powder_type_selection = StringVar()
         entry_powder_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_powder_type_selection,
                                                   state='readonly')
-        entry_powder_type_combobox['values'] = ['Select component',
-                                                'Dummy data',
-                                                'Bang bang']
+        entry_powder_type_combobox['values'] = powder_types_from_repository()
         entry_powder_type_combobox.current(0)
         entry_powder_type_combobox.grid(row=3, column=1, pady=5)
 
@@ -222,9 +216,7 @@ class Window(object):
         entry_bullet_type_selection = StringVar()
         entry_bullet_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_type_selection,
                                                   state='readonly')
-        entry_bullet_type_combobox['values'] = ['Select component',
-                                                'Dummy data',
-                                                'Bang bang']
+        entry_bullet_type_combobox['values'] = bullet_types_from_repository()
         entry_bullet_type_combobox.current(0)
         entry_bullet_type_combobox.grid(row=5, column=1, pady=5)
 
@@ -234,9 +226,7 @@ class Window(object):
         entry_bullet_weight_selection = StringVar()
         entry_bullet_weight_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_weight_selection,
                                                     state='readonly')
-        entry_bullet_weight_combobox['values'] = ['Select component',
-                                                  'Dummy data',
-                                                  'Bang bang']
+        entry_bullet_weight_combobox['values'] = bullet_weights_from_repository()
         entry_bullet_weight_combobox.current(0)
         entry_bullet_weight_combobox.grid(row=6, column=1, pady=5)
 
@@ -253,9 +243,7 @@ class Window(object):
         entry_primer_type_selection = StringVar()
         entry_primer_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_primer_type_selection,
                                                   state='readonly')
-        entry_primer_type_combobox['values'] = ['Select component',
-                                                'Dummy data',
-                                                'Bang bang']
+        entry_primer_type_combobox['values'] = primers_from_repository()
         entry_primer_type_combobox.current(0)
         entry_primer_type_combobox.grid(row=8, column=1, pady=5)
 
@@ -264,9 +252,7 @@ class Window(object):
 
         entry_case_selection = StringVar()
         entry_case_combobox = ttk.Combobox(entry_tab, width=25, value=entry_case_selection, state='readonly')
-        entry_case_combobox['values'] = ['Select component',
-                                         'Dummy data',
-                                         'Bang bang']
+        entry_case_combobox['values'] = case_types_from_repository()
         entry_case_combobox.current(0)
         entry_case_combobox.grid(row=9, column=1, pady=5)
 
@@ -560,6 +546,57 @@ def confirm_delete():
         pass
     else:
         pass
+
+# Functions to add components from repository to comboboxes on Add entry tab
+
+
+def guns_from_repository():
+    guns = ['Select component']
+    for row in db.view_guns():
+        guns.append(row[1])
+    return guns
+
+
+def calibres_from_repository():
+    calibres = ['Select component']
+    for row in db.view_calibres():
+        calibres.append(row[1])
+    return calibres
+
+
+def powder_types_from_repository():
+    powder_types = ['Select component']
+    for row in db.view_powder_types():
+        powder_types.append(row[1])
+    return powder_types
+
+
+def bullet_types_from_repository():
+    bullet_types = ['Select component']
+    for row in db.view_bullet_types():
+        bullet_types.append(row[1])
+    return bullet_types
+
+
+def bullet_weights_from_repository():
+    bullet_weights = ['Select component']
+    for row in db.view_bullet_weights():
+        bullet_weights.append(row[1])
+    return bullet_weights
+
+
+def primers_from_repository():
+    primers = ['Select component']
+    for row in db.view_primers():
+        primers.append(row[1])
+    return primers
+
+
+def case_types_from_repository():
+    case_types = ['Select component']
+    for row in db.view_case_types():
+        case_types.append(row[1])
+    return case_types
 
 
 window = Tk()
