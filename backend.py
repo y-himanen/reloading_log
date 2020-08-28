@@ -1,5 +1,7 @@
 import sqlite3
 
+# Create database, connection, and tables
+
 
 class Database:
 
@@ -22,6 +24,8 @@ class Database:
                          "powder_weight float, bullet_type text, bullet_weight integer, oal float, primer_type text, "
                          "case_type text, no_made integer, rating text)")
         self.con.commit()
+
+# Functions to insert individual components into tables to create component repositories
 
     def insert_gun(self, gun):
         self.cur.execute("INSERT INTO guns VALUES (NULL, ?)", (gun.strip(),))
@@ -50,6 +54,8 @@ class Database:
     def insert_case_type(self, case_type):
         self.cur.execute("INSERT INTO case_types VALUES (NULL, ?)", (case_type.strip(),))
         self.con.commit()
+
+# Functions to return all components from the database, for populating treeviews and comboboxes
 
     def view_guns(self):
         self.cur.execute("SELECT * FROM guns")
@@ -86,12 +92,7 @@ class Database:
         rows = self.cur.fetchall()
         return rows
 
-    def delete_component(self, table_ref, component):
-        if table_ref == 0:
-            pass
-        elif table_ref == 1:
-            self.cur.execute("DELETE FROM guns WHERE gun=?", (component,))
-            self.con.commit()
+# Functions to edit individual components from repositories in the database
 
     def edit_gun(self, id, gun):
         self.cur.execute("UPDATE guns SET gun=? WHERE id=?", (gun, id))
@@ -119,6 +120,36 @@ class Database:
 
     def edit_case_type(self, id, case_type):
         self.cur.execute("UPDATE case_types SET case_type=? WHERE id=?", (case_type, id))
+        self.con.commit()
+
+# Functions to delete individual components from the repositories
+
+    def delete_gun(self, id):
+        self.cur.execute("DELETE FROM guns WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_calibre(self, id):
+        self.cur.execute("DELETE FROM calibres WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_powder_type(self, id):
+        self.cur.execute("DELETE FROM powder_types WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_bullet_weight(self, id):
+        self.cur.execute("DELETE FROM bullet_weights WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_bullet_type(self, id):
+        self.cur.execute("DELETE FROM bullet_types WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_primer(self, id):
+        self.cur.execute("DELETE FROM primers WHERE id=?", (id,))
+        self.con.commit()
+
+    def delete_case_type(self, id):
+        self.cur.execute("DELETE FROM case_types WHERE id=?", (id,))
         self.con.commit()
 
     # def view(self):
