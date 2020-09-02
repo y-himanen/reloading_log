@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
+from datetime import date
 from backend import Database
 
 db = Database("boom_log.db")
@@ -179,29 +180,29 @@ class Window(object):
         self.entry_gun_label.grid(row=1, column=0, padx=20, pady=5, sticky=W)
 
         entry_gun_selection = StringVar()
-        entry_gun_combobox = ttk.Combobox(entry_tab, width=25, value=entry_gun_selection, state='readonly')
-        entry_gun_combobox['values'] = guns_from_repository()
-        entry_gun_combobox.current(0)
-        entry_gun_combobox.grid(row=1, column=1, pady=5)
+        self.entry_gun_combobox = ttk.Combobox(entry_tab, width=25, value=entry_gun_selection, state='readonly',
+                                               postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_gun_combobox.grid(row=1, column=1, pady=5)
+        self.entry_gun_combobox.set(guns_from_repository()[0])
 
         self.entry_calibre_label = Label(entry_tab, text='Calibre')
         self.entry_calibre_label.grid(row=2, column=0, padx=20, pady=5, sticky=W)
 
         entry_calibre_selection = StringVar()
-        entry_calibre_combobox = ttk.Combobox(entry_tab, width=25, value=entry_calibre_selection, state='readonly')
-        entry_calibre_combobox['values'] = calibres_from_repository()
-        entry_calibre_combobox.current(0)
-        entry_calibre_combobox.grid(row=2, column=1, pady=5)
+        self.entry_calibre_combobox = ttk.Combobox(entry_tab, width=25, value=entry_calibre_selection, state='readonly',
+                                                   postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_calibre_combobox.grid(row=2, column=1, pady=5)
+        self.entry_calibre_combobox.set(calibres_from_repository()[0])
 
         self.entry_powder_type_label = Label(entry_tab, text='Powder type')
         self.entry_powder_type_label.grid(row=3, column=0, padx=20, pady=5, sticky=W)
 
         entry_powder_type_selection = StringVar()
-        entry_powder_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_powder_type_selection,
-                                                  state='readonly')
-        entry_powder_type_combobox['values'] = powder_types_from_repository()
-        entry_powder_type_combobox.current(0)
-        entry_powder_type_combobox.grid(row=3, column=1, pady=5)
+        self.entry_powder_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_powder_type_selection,
+                                                       state='readonly',
+                                                       postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_powder_type_combobox.grid(row=3, column=1, pady=5)
+        self.entry_powder_type_combobox.set(powder_types_from_repository()[0])
 
         self.entry_powder_weight_label = Label(entry_tab, text='Powder weight (grn)')
         self.entry_powder_weight_label.grid(row=4, column=0, padx=20, pady=5, sticky=W)
@@ -214,21 +215,21 @@ class Window(object):
         self.entry_bullet_type_label.grid(row=5, column=0, padx=20, pady=5, sticky=W)
 
         entry_bullet_type_selection = StringVar()
-        entry_bullet_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_type_selection,
-                                                  state='readonly')
-        entry_bullet_type_combobox['values'] = bullet_types_from_repository()
-        entry_bullet_type_combobox.current(0)
-        entry_bullet_type_combobox.grid(row=5, column=1, pady=5)
+        self.entry_bullet_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_type_selection,
+                                                       state='readonly',
+                                                       postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_bullet_type_combobox.grid(row=5, column=1, pady=5)
+        self.entry_bullet_type_combobox.set(bullet_types_from_repository()[0])
 
         self.entry_bullet_weight_label = Label(entry_tab, text='Bullet weight (grn)')
         self.entry_bullet_weight_label.grid(row=6, column=0, padx=20, pady=5, sticky=W)
 
         entry_bullet_weight_selection = StringVar()
-        entry_bullet_weight_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_weight_selection,
-                                                    state='readonly')
-        entry_bullet_weight_combobox['values'] = bullet_weights_from_repository()
-        entry_bullet_weight_combobox.current(0)
-        entry_bullet_weight_combobox.grid(row=6, column=1, pady=5)
+        self.entry_bullet_weight_combobox = ttk.Combobox(entry_tab, width=25, value=entry_bullet_weight_selection,
+                                                         state='readonly',
+                                                         postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_bullet_weight_combobox.grid(row=6, column=1, pady=5)
+        self.entry_bullet_weight_combobox.set(bullet_weights_from_repository()[0])
 
         self.entry_oal_label = Label(entry_tab, text='O.A.L. (mm)')
         self.entry_oal_label.grid(row=7, column=0, padx=20, pady=5, sticky=W)
@@ -241,20 +242,20 @@ class Window(object):
         self.entry_primer_label.grid(row=8, column=0, padx=20, pady=5, sticky=W)
 
         entry_primer_type_selection = StringVar()
-        entry_primer_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_primer_type_selection,
-                                                  state='readonly')
-        entry_primer_type_combobox['values'] = primers_from_repository()
-        entry_primer_type_combobox.current(0)
-        entry_primer_type_combobox.grid(row=8, column=1, pady=5)
+        self.entry_primer_type_combobox = ttk.Combobox(entry_tab, width=25, value=entry_primer_type_selection,
+                                                       state='readonly',
+                                                       postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_primer_type_combobox.grid(row=8, column=1, pady=5)
+        self.entry_primer_type_combobox.set(primers_from_repository()[0])
 
         self.entry_case_label = Label(entry_tab, text='Case type')
         self.entry_case_label.grid(row=9, column=0, padx=20, pady=5, sticky=W)
 
         entry_case_selection = StringVar()
-        entry_case_combobox = ttk.Combobox(entry_tab, width=25, value=entry_case_selection, state='readonly')
-        entry_case_combobox['values'] = case_types_from_repository()
-        entry_case_combobox.current(0)
-        entry_case_combobox.grid(row=9, column=1, pady=5)
+        self.entry_case_combobox = ttk.Combobox(entry_tab, width=25, value=entry_case_selection, state='readonly',
+                                                postcommand=self.keep_entry_comboboxes_refreshed)
+        self.entry_case_combobox.grid(row=9, column=1, pady=5)
+        self.entry_case_combobox.set(case_types_from_repository()[0])
 
         self.entry_no_made_label = Label(entry_tab, text='Number made')
         self.entry_no_made_label.grid(row=10, column=0, padx=20, pady=5, sticky=W)
@@ -271,7 +272,14 @@ class Window(object):
         self.entry_preparations.grid(row=11, column=1, pady=5)
 
         entry_add_entry_button = Button(entry_tab, text="Add entry", width=23,
-                                        command=confirm_save)
+                                        command=partial(create_new_log_entry, self.entry_gun_combobox,
+                                                        self.entry_calibre_combobox, self.entry_powder_type_combobox,
+                                                        self.powder_weight, self.entry_powder_weight,
+                                                        self.entry_bullet_type_combobox,
+                                                        self.entry_bullet_weight_combobox, self.oal,
+                                                        self.entry_oal, self.entry_primer_type_combobox,
+                                                        self.entry_case_combobox, self.no_made, self.entry_no_made,
+                                                        self.preparations_text, self.entry_preparations))
         entry_add_entry_button.grid(row=12, column=1, pady=5)
 
         entry_quit_button = Button(entry_tab, text='Quit', width=23, command=exit_application)
@@ -364,6 +372,23 @@ class Window(object):
     def clear_component_entry_and_config_tree(self):
         self.edit_component_entry.delete(0, END)
         self.config_tree.delete(*self.config_tree.get_children())
+
+    def keep_entry_comboboxes_refreshed(self):
+        guns = guns_from_repository()
+        self.entry_gun_combobox['values'] = guns
+        calibres = calibres_from_repository()
+        self.entry_calibre_combobox['values'] = calibres
+        powder_types = powder_types_from_repository()
+        self.entry_powder_type_combobox['values'] = powder_types
+        bullet_types = bullet_types_from_repository()
+        self.entry_bullet_type_combobox['values'] = bullet_types
+        bullet_weights = bullet_weights_from_repository()
+        self.entry_bullet_weight_combobox['values'] = bullet_weights
+        primers = primers_from_repository()
+        self.entry_primer_type_combobox['values'] = primers
+        case_types = case_types_from_repository()
+        self.entry_case_combobox['values'] = case_types
+
 
 # Exit application function attached to Quit button on each tab and delete window protocol
 
@@ -463,6 +488,7 @@ def view_components(component_treeview, component_combobox_ref):
     except IndexError:
         print("Index not found")
 
+
 # Function to edit component listed in edit component entry box on Configuration tab
 
 
@@ -502,6 +528,7 @@ def edit_component(component_combobox_ref, component_treeview, component_to_edit
     else:
         messagebox.showinfo('Cancelled', 'No changes were made to your repository.')
 
+
 # Function to delete component selected from Configuration tab component repository treeview
 
 
@@ -511,7 +538,7 @@ def delete_selected_component(component_combobox_ref, component_treeview, edit_c
         messagebox.showwarning('Error', 'You must select the component to delete.', icon='warning')
     else:
         confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?',
-                                                    icon='warning')
+                                                     icon='warning')
         if confirm_delete_info == 'yes':
             item_iid = component_treeview.selection()[0]
             id_in_table = component_treeview.item(item_iid)['text']
@@ -546,6 +573,7 @@ def confirm_delete():
         pass
     else:
         pass
+
 
 # Functions to add components from repository to comboboxes on Add entry tab
 
@@ -597,6 +625,76 @@ def case_types_from_repository():
     for row in db.view_case_types():
         case_types.append(row[1])
     return case_types
+
+
+# Function to reset comboboxes and empty entry boxes after saving new log entry on Add entry tab
+
+
+def empty_log_entry_form(gun_combobox, calibre_combobox, powder_type_combobox, powder_weight_entry_widget,
+                         bullet_type_combobox, bullet_weight_combobox, oal_entry_widget, primer_type_combobox,
+                         case_type_combobox, no_made_entry_widget, preps_entry_widget):
+    gun_combobox.set(guns_from_repository()[0])
+    calibre_combobox.set(calibres_from_repository()[0])
+    powder_type_combobox.set(powder_types_from_repository()[0])
+    powder_weight_entry_widget.delete(0, END)
+    bullet_type_combobox.set(bullet_types_from_repository()[0])
+    bullet_weight_combobox.set(bullet_weights_from_repository()[0])
+    oal_entry_widget.delete(0, END)
+    primer_type_combobox.set(primers_from_repository()[0])
+    case_type_combobox.set(case_types_from_repository()[0])
+    no_made_entry_widget.delete(0, END)
+    preps_entry_widget.delete(0, END)
+
+
+# Function to save new log entry on Add entry tab, all fields required except 'Preparations'
+
+
+def create_new_log_entry(gun_combobox, calibre_combobox, powder_type_combobox, powder_weight,
+                         powder_weight_entry_widget, bullet_type_combobox, bullet_weight_combobox, oal,
+                         oal_entry_widget, primer_type_combobox, case_type_combobox, no_made, no_made_entry_widget,
+                         preps, preps_entry_widget):
+    new_log_entry_info = messagebox.askquestion('Save Entry', 'Are you sure you want to save this entry?',
+                                                icon='warning')
+    if new_log_entry_info == 'yes':
+        if gun_combobox.current() == 0 \
+                or calibre_combobox.current() == 0 \
+                or powder_type_combobox.current() == 0 \
+                or len(powder_weight.get()) == 0 \
+                or bullet_type_combobox.current() == 0 \
+                or bullet_weight_combobox.current() == 0 \
+                or len(oal.get()) == 0 \
+                or primer_type_combobox.current() == 0 \
+                or case_type_combobox.current() == 0 \
+                or len(no_made.get()) == 0:
+            messagebox.showwarning('Error', "All fields except 'Preparations' are required. No changes were made to "
+                                            "your log.", icon='warning')
+        else:
+            try:
+                entry_date = date.today()
+                gun = str(gun_combobox.get())
+                calibre = str(calibre_combobox.get())
+                powder_type = str(powder_type_combobox.get())
+                powder_weight = float(powder_weight.get())
+                bullet_type = str(bullet_type_combobox.get())
+                bullet_weight = int(bullet_weight_combobox.get())
+                oal = oal.get()
+                primer_type = str(primer_type_combobox.get())
+                case_type = str(case_type_combobox.get())
+                no_made = no_made.get()
+                preps = preps.get()
+                notes = ""
+                rating = ""
+                db.create_new_log_entry(entry_date, gun, calibre, powder_type, powder_weight, bullet_type,
+                                        bullet_weight, oal, primer_type, case_type, no_made, preps, notes, rating)
+                messagebox.showinfo('Success', 'Your log entry was successfully saved.')
+                empty_log_entry_form(gun_combobox, calibre_combobox, powder_type_combobox, powder_weight_entry_widget,
+                                     bullet_type_combobox, bullet_weight_combobox, oal_entry_widget,
+                                     primer_type_combobox, case_type_combobox, no_made_entry_widget, preps_entry_widget)
+            except:
+                messagebox.showwarning('Error', 'Something went wrong and no changes were made to your log.',
+                                       icon='warning')
+    else:
+        messagebox.showinfo('Cancelled', 'No changes were made to your log.')
 
 
 window = Tk()
