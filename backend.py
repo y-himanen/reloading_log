@@ -20,9 +20,10 @@ class Database:
         self.cur.execute("CREATE TABLE IF NOT EXISTS case_types (id INTEGER PRIMARY KEY, case_type text NOT NULL "
                          "UNIQUE)")
         self.cur.execute("CREATE TABLE IF NOT EXISTS log"
-                         "(lot INTEGER PRIMARY KEY, date date, gun text, calibre text, powder_type text, "
-                         "powder_weight float, bullet_type text, bullet_weight integer, oal float, primer_type text, "
-                         "case_type text, no_made integer, rating text)")
+                         "(lot INTEGER PRIMARY KEY, date date, gun text NOT NULL, calibre text NOT NULL, "
+                         "powder_type text NOT NULL, powder_weight real NOT NULL, bullet_type text NOT NULL, "
+                         "bullet_weight integer NOT NULL, oal real NOT NULL, primer_type text NOT NULL, "
+                         "case_type text NOT NULL, no_made integer NOT NULL, preps text, notes text, rating text)")
         self.con.commit()
 
 # Functions to insert individual components into tables to create component repositories
@@ -152,25 +153,14 @@ class Database:
         self.cur.execute("DELETE FROM case_types WHERE id=?", (id,))
         self.con.commit()
 
-    # def view(self):
-    #     self.cur.execute("SELECT * FROM books")
-    #     rows = self.cur.fetchall()
-    #     return rows
-    #
-    # def search(self, title="", author="", year="", isbn=""):
-    #     self.cur.execute("SELECT * FROM books WHERE title=? OR author=? OR year=? OR isbn=?",
-    #                      (title.title(), author.title(), year, isbn))
-    #     rows = self.cur.fetchall()
-    #     return rows
-    #
-    # def delete(self, id):
-    #     self.cur.execute("DELETE FROM books WHERE id=?", (id,))
-    #     self.con.commit()
-    #
-    # def update(self, id, title, author, year, isbn):
-    #     self.cur.execute("UPDATE books SET title=?, author=?, year=?, isbn=? WHERE id=?",
-    #                      (title, author, year, isbn, id))
-    #     self.con.commit()
+# Function to create new log entry in log table
+
+    def create_new_log_entry(self, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal,
+                             primer_type, case_type, no_made, preps, notes, rating):
+        self.cur.execute("INSERT INTO log VALUES (NULL, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                         (date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, primer_type,
+                          case_type, no_made, preps.strip(), notes, rating))
+        self.con.commit()
 
     def __del__(self):
         self.con.close()
