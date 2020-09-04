@@ -186,7 +186,7 @@ class Database:
 
     def view_log_treeview(self):
         self.cur.execute("SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, "
-                         "primer_type, case_type, no_made, rating FROM log")
+                         "primer_type, case_type, no_made, rating FROM log ORDER BY lot DESC")
         rows = self.cur.fetchall()
         return rows
 
@@ -196,6 +196,23 @@ class Database:
         self.cur.execute("SELECT preps FROM log WHERE lot=?", (id,))
         data = self.cur.fetchall()
         return data
+
+# Function to update load rating
+
+    def update_rating(self, id, rating):
+        self.cur.execute("UPDATE log SET rating=? WHERE lot=?", (rating, id))
+        self.con.commit()
+
+# Function to add/update notes
+
+    def update_notes(self, id):
+        pass
+
+# Function to delete log entry
+
+    def delete_log_entry(self, id):
+        self.cur.execute("DELETE FROM log WHERE lot=?", (id,))
+        self.con.commit()
 
     def __del__(self):
         self.con.close()

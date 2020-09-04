@@ -137,7 +137,7 @@ class Window(object):
         view_csv_button = Button(view_tab, text="Write log to CSV", width=22)
         view_csv_button.grid(row=9, column=11)
 
-        view_delete_button = Button(view_tab, text="Delete selected entry", width=22, command=confirm_delete)
+        view_delete_button = Button(view_tab, text="Delete selected entry", width=22, command=self.delete_log_entry)
         view_delete_button.grid(row=11, column=11)
 
         self.view_preps_label = Label(view_tab, text="Preparations:")
@@ -162,19 +162,18 @@ class Window(object):
         self.view_add_star_rating_label = Label(view_tab, text="Add load rating:")
         self.view_add_star_rating_label.grid(row=19, column=0, padx=(20, 0), sticky=W)
 
-        star_rating = StringVar()
-        star_rating_combobox = ttk.Combobox(view_tab, width=22, value=star_rating, state='readonly')
-        star_rating_combobox['values'] = ['Select',
-                                          '*',
-                                          '**',
-                                          '***',
-                                          '****',
-                                          '*****']
-        star_rating_combobox.current(0)
-        star_rating_combobox.grid(row=19, column=1, sticky=W)
+        self.star_rating_combobox = ttk.Combobox(view_tab, width=22, state='readonly')
+        self.star_rating_combobox['values'] = ['Select',
+                                               '*',
+                                               '**',
+                                               '***',
+                                               '****',
+                                               '*****']
+        self.star_rating_combobox.current(0)
+        self.star_rating_combobox.grid(row=19, column=1, sticky=W)
 
-        view_save_rating_button = Button(view_tab, text="Save rating", width=22,
-                                         command=confirm_save)
+        view_save_rating_button = Button(view_tab, text="Add/Update rating", width=22,
+                                         command=self.update_rating)
         view_save_rating_button.grid(row=19, column=2, sticky=W)
 
         view_exit_button = Button(view_tab, text="Quit", width=22, command=exit_application)
@@ -451,11 +450,49 @@ class Window(object):
     # Method to add Preparations text from selected log entry (if available) to label in View log tab
 
     def display_preparations(self, event):
-        item_iid = self.view_log_tree.selection()[0]
+        item_iid = self.view_log_tree.selection()
         ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
         formatted_preps = str(db.view_preparations(ref_from_table)).replace("'", "").replace("(", "").replace(")", "")
         formatted_preps = formatted_preps.replace("[", "").replace("]", "")[:-1]
         self.preparations_text_from_db.set(formatted_preps)
+
+    # Method to add/edit rating in View log tab
+
+    def update_rating(self):
+        item_iid = self.view_log_tree.selection()
+        if self.star_rating_combobox.current() == 0:
+            messagebox.showwarning('Error', 'You must select the rating to add. No changes were made.', icon='warning')
+        else:
+            confirm_rating = messagebox.askquestion('Confirm Rating', 'Are you sure you want to add this rating?',
+                                                    icon='warning')
+            if confirm_rating == 'yes':
+                try:
+                    ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
+                    db.update_rating(ref_from_table, self.star_rating_combobox.get())
+                    messagebox.showinfo('Success', 'Rating successfully added to your log.')
+                    self.star_rating_combobox.current(0)
+                except IndexError:
+                    messagebox.showwarning('Error', 'You must select the entry you want to rate.', icon='warning')
+            else:
+                messagebox.showinfo('Cancelled', 'No changes were made to your log.')
+        self.populate_log_treeview()
+
+    # Method to delete log entry from View log tab
+
+    def delete_log_entry(self):
+        item_iid = self.view_log_tree.selection()
+        confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?\n'
+                                                               'This action cannot be undone.', icon='warning')
+        if confirm_delete_info == 'yes':
+            try:
+                ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
+                db.delete_log_entry(ref_from_table)
+                self.populate_log_treeview()
+                messagebox.showinfo('Deleted', 'The entry was successfully deleted from your log.')
+            except IndexError:
+                messagebox.showwarning('Error', 'You must select the entry you want to delete.', icon='warning')
+        else:
+            messagebox.showinfo('Cancelled', 'No changes were made to your log.')
 
 
 # Exit application function attached to Quit button on each tab and delete window protocol
@@ -721,13 +758,10 @@ def case_types_from_repository():
 
 def ratings_from_repository():
     ratings = ['Select rating']
-    ratings_rep_empty = ['Select rating']
     for row in db.view_ratings():
         ratings.append(row)
-    if '*' in ratings:
-        return ratings
-    else:
-        return ratings_rep_empty
+    ratings.remove(ratings[1])
+    return ratings
 
 
 # Function to reset comboboxes and empty entry boxes after saving new log entry on Add entry tab
