@@ -28,6 +28,13 @@ class Window(object):
         tab_parent.add(view_tab, text="View log")
         tab_parent.add(entry_tab, text="Add entry")
         tab_parent.add(config_tab, text="Add components")
+        tab_parent.bind("<<NotebookTabChanged>>", self.trigger_populate_log_treeview)
+
+        # App icon, attribution below
+        # Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from
+        # <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+
+        self.window.iconbitmap("C:\\Users\\Yasmine\\Desktop\\ownProjects\\Python\\reloading_diary\\app_icon.ico")
 
         # Image for Add entry tab
 
@@ -70,7 +77,7 @@ class Window(object):
         self.view_log_tree.column("#7", width=0, minwidth=120)
         self.view_log_tree.heading("#8", text="Bullet weight (grn)", anchor=W)  # integer
         self.view_log_tree.column("#8", width=0, minwidth=120)
-        self.view_log_tree.heading("#9", text="O.A.L. (mm)", anchor=W)  # decimal
+        self.view_log_tree.heading("#9", text="OAL (mm)", anchor=W)  # decimal
         self.view_log_tree.column("#9", width=0, minwidth=120)
         self.view_log_tree.heading("#10", text="Primer type", anchor=W)  # text
         self.view_log_tree.column("#10", width=0, minwidth=120)
@@ -81,6 +88,7 @@ class Window(object):
         self.view_log_tree.heading("#13", text="Rating", anchor=W)  # text
         self.view_log_tree.column("#13", width=755, minwidth=70)
         self.view_log_tree.grid(row=2, column=0, rowspan=10, columnspan=10, padx=(20, 0), pady=(0, 10))
+        self.view_log_tree.bind("<<TreeviewSelect>>", self.display_preparations)
 
         view_scrollbar = Scrollbar(view_tab)
         view_scrollbar.grid(row=2, column=10, rowspan=10, padx=(0, 10), sticky=N + S + W)
@@ -97,45 +105,48 @@ class Window(object):
         self.view_narrow_by_label = Label(view_tab, text="Narrow by:")
         self.view_narrow_by_label.grid(row=2, column=11, sticky=SW)
 
+        narrowed_selection = StringVar()
         narrow_by = StringVar()
-        narrow_by_combobox = ttk.Combobox(view_tab, width=22, value=narrow_by, state='readonly')
-        narrow_by_combobox['values'] = ['Select',
-                                        'Date',
-                                        'Gun',
-                                        'Calibre',
-                                        'Powder type',
-                                        'Powder weight',
-                                        'Bullet type',
-                                        'Bullet weight',
-                                        'O.A.L.',
-                                        'Primer type',
-                                        'Case type',
-                                        'Rating']
-        narrow_by_combobox.current(0)
-        narrow_by_combobox.grid(row=3, column=11, sticky=N)
+        self.narrow_by_combobox = ttk.Combobox(view_tab, width=22, value=narrow_by, state='readonly')
+        self.narrowed_selection_combobox = ttk.Combobox(view_tab, width=22, value=narrowed_selection, state='readonly',
+                                                        postcommand=self.log_fill_select_component_combobox)
+        self.narrow_by_combobox['values'] = ['Select',
+                                             'Date',
+                                             'Gun',
+                                             'Calibre',
+                                             'Powder type',
+                                             'Powder weight',
+                                             'Bullet type',
+                                             'Bullet weight',
+                                             'OAL',
+                                             'Primer type',
+                                             'Case type',
+                                             'Rating']
+        self.narrow_by_combobox.current(0)
+        self.narrowed_selection_combobox.set(self.log_fill_select_component_combobox()[0])
+        self.narrow_by_combobox.grid(row=3, column=11, sticky=N)
+        self.narrowed_selection_combobox.grid(row=5, column=11, sticky=N)
+        self.narrow_by_combobox.bind("<<ComboboxSelected>>", self.narrow_by_selected)
 
         self.view_select_label = Label(view_tab, text="Select:")
         self.view_select_label.grid(row=4, column=11, pady=(10, 0), sticky=SW)
 
-        narrowed_selection = StringVar()
-        narrowed_selection_combobox = ttk.Combobox(view_tab, width=22, value=narrowed_selection, state='readonly')
-        narrowed_selection_combobox['values'] = ['Test data', 'Dummy data']
-        narrowed_selection_combobox.current(0)
-        narrowed_selection_combobox.grid(row=5, column=11, sticky=N)
-
-        view_delete_button = Button(view_tab, text="Delete selected entry", width=22, command=confirm_delete)
-        view_delete_button.grid(row=7, column=11)
-
-        view_clear_search_button = Button(view_tab, text="View all", width=22)
-        view_clear_search_button.grid(row=9, column=11)
+        view_clear_search_button = Button(view_tab, text="View all", width=22, command=self.populate_log_treeview)
+        view_clear_search_button.grid(row=7, column=11)
 
         view_csv_button = Button(view_tab, text="Write log to CSV", width=22)
-        view_csv_button.grid(row=11, column=11)
+        view_csv_button.grid(row=9, column=11)
+
+        view_delete_button = Button(view_tab, text="Delete selected entry", width=22, command=confirm_delete)
+        view_delete_button.grid(row=11, column=11)
 
         self.view_preps_label = Label(view_tab, text="Preparations:")
         self.view_preps_label.grid(row=13, column=0, padx=(20, 0), pady=(30, 0), sticky=SW)
 
-        self.view_preparations = Label(view_tab, height=3, width=107, relief="sunken", bg="white")
+        self.preparations_text_from_db = StringVar()
+        self.view_preparations = Label(view_tab, height=3, width=107, relief="sunken", bg="white",
+                                       textvariable=self.preparations_text_from_db, anchor=NW, justify=LEFT, padx=7,
+                                       pady=5)
         self.view_preparations.grid(row=14, column=0, padx=(15, 0), pady=(0, 10), columnspan=10, sticky=N)
 
         self.view_notes_label = Label(view_tab, text="Load notes:")
@@ -231,7 +242,7 @@ class Window(object):
         self.entry_bullet_weight_combobox.grid(row=6, column=1, pady=5)
         self.entry_bullet_weight_combobox.set(bullet_weights_from_repository()[0])
 
-        self.entry_oal_label = Label(entry_tab, text='O.A.L. (mm)')
+        self.entry_oal_label = Label(entry_tab, text='OAL (mm)')
         self.entry_oal_label.grid(row=7, column=0, padx=20, pady=5, sticky=W)
 
         self.oal = StringVar()
@@ -388,6 +399,63 @@ class Window(object):
         self.entry_primer_type_combobox['values'] = primers
         case_types = case_types_from_repository()
         self.entry_case_combobox['values'] = case_types
+
+    def log_fill_select_component_combobox(self):
+        data = []
+        narrow_by_combobox_ref = self.narrow_by_combobox.current()
+        if narrow_by_combobox_ref == 0:
+            data = ['Select above']
+        elif narrow_by_combobox_ref == 1:
+            data = dates_from_repository()
+        elif narrow_by_combobox_ref == 2:
+            data = guns_from_repository()
+        elif narrow_by_combobox_ref == 3:
+            data = calibres_from_repository()
+        elif narrow_by_combobox_ref == 4:
+            data = powder_types_from_repository()
+        elif narrow_by_combobox_ref == 5:
+            data = powder_weights_from_repository()
+        elif narrow_by_combobox_ref == 6:
+            data = bullet_types_from_repository()
+        elif narrow_by_combobox_ref == 7:
+            data = bullet_weights_from_repository()
+        elif narrow_by_combobox_ref == 8:
+            data = oals_from_repository()
+        elif narrow_by_combobox_ref == 9:
+            data = primers_from_repository()
+        elif narrow_by_combobox_ref == 10:
+            data = case_types_from_repository()
+        elif narrow_by_combobox_ref == 11:
+            data = ratings_from_repository()
+        self.narrowed_selection_combobox['values'] = data
+        return data
+
+    # Method bound to Narrow by combobox to reset default value of Select combobox
+
+    def narrow_by_selected(self, event):
+        self.narrowed_selection_combobox.set(self.log_fill_select_component_combobox()[0])
+
+    # Method and event handler to return all entries from log to populate treeview on View log tab and keep updated
+
+    def populate_log_treeview(self):
+        self.view_log_tree.delete(*self.view_log_tree.get_children())
+        for row in db.view_log_treeview():
+            db_date = row[1]
+            formatted_date = db_date[8:10] + db_date[7] + db_date[5:7] + db_date[4] + db_date[0:4]
+            self.view_log_tree.insert('', END, values=(row[0], formatted_date, row[2], row[3], row[4], row[5], row[6],
+                                                       row[7], row[8], row[9], row[10], row[11], row[12]))
+
+    def trigger_populate_log_treeview(self, event):
+        self.populate_log_treeview()
+
+    # Method to add Preparations text from selected log entry (if available) to label in View log tab
+
+    def display_preparations(self, event):
+        item_iid = self.view_log_tree.selection()[0]
+        ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
+        formatted_preps = str(db.view_preparations(ref_from_table)).replace("'", "").replace("(", "").replace(")", "")
+        formatted_preps = formatted_preps.replace("[", "").replace("]", "")[:-1]
+        self.preparations_text_from_db.set(formatted_preps)
 
 
 # Exit application function attached to Quit button on each tab and delete window protocol
@@ -575,7 +643,17 @@ def confirm_delete():
         pass
 
 
-# Functions to add components from repository to comboboxes on Add entry tab
+# Functions to return all data from databases by type to populate comboboxes/treeviews etc.
+
+
+def dates_from_repository():
+    dates = ['Select date']
+    for row in db.view_dates():
+        formatted_row = str(row)
+        formatted_row = formatted_row[10:12] + formatted_row[9] + formatted_row[7:9] + formatted_row[6] + formatted_row[
+                                                                                                          2:6]
+        dates.append(formatted_row)
+    return dates
 
 
 def guns_from_repository():
@@ -599,6 +677,13 @@ def powder_types_from_repository():
     return powder_types
 
 
+def powder_weights_from_repository():
+    powder_weights = ['Select weight']
+    for row in db.view_powder_weights():
+        powder_weights.append(row)
+    return powder_weights
+
+
 def bullet_types_from_repository():
     bullet_types = ['Select component']
     for row in db.view_bullet_types():
@@ -607,10 +692,17 @@ def bullet_types_from_repository():
 
 
 def bullet_weights_from_repository():
-    bullet_weights = ['Select component']
+    bullet_weights = ['Select weight']
     for row in db.view_bullet_weights():
         bullet_weights.append(row[1])
     return bullet_weights
+
+
+def oals_from_repository():
+    oals = ['Select length']
+    for row in db.view_oals():
+        oals.append(row)
+    return oals
 
 
 def primers_from_repository():
@@ -625,6 +717,17 @@ def case_types_from_repository():
     for row in db.view_case_types():
         case_types.append(row[1])
     return case_types
+
+
+def ratings_from_repository():
+    ratings = ['Select rating']
+    ratings_rep_empty = ['Select rating']
+    for row in db.view_ratings():
+        ratings.append(row)
+    if '*' in ratings:
+        return ratings
+    else:
+        return ratings_rep_empty
 
 
 # Function to reset comboboxes and empty entry boxes after saving new log entry on Add entry tab

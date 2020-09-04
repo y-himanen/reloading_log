@@ -58,6 +58,11 @@ class Database:
 
 # Functions to return all components from the database, for populating treeviews and comboboxes
 
+    def view_dates(self):
+        self.cur.execute("SELECT DISTINCT date FROM log ORDER BY DATE")
+        rows = self.cur.fetchall()
+        return rows
+
     def view_guns(self):
         self.cur.execute("SELECT * FROM guns")
         rows = self.cur.fetchall()
@@ -73,6 +78,11 @@ class Database:
         rows = self.cur.fetchall()
         return rows
 
+    def view_powder_weights(self):
+        self.cur.execute("SELECT DISTINCT powder_weight FROM log ORDER by powder_weight")
+        rows = self.cur.fetchall()
+        return rows
+
     def view_bullet_weights(self):
         self.cur.execute("SELECT * FROM bullet_weights")
         rows = self.cur.fetchall()
@@ -83,6 +93,11 @@ class Database:
         rows = self.cur.fetchall()
         return rows
 
+    def view_oals(self):
+        self.cur.execute("SELECT DISTINCT oal FROM log ORDER BY oal")
+        rows = self.cur.fetchall()
+        return rows
+
     def view_primers(self):
         self.cur.execute("SELECT * FROM primers")
         rows = self.cur.fetchall()
@@ -90,6 +105,11 @@ class Database:
 
     def view_case_types(self):
         self.cur.execute("SELECT * FROM case_types")
+        rows = self.cur.fetchall()
+        return rows
+
+    def view_ratings(self):
+        self.cur.execute("SELECT DISTINCT rating FROM log ORDER BY rating")
         rows = self.cur.fetchall()
         return rows
 
@@ -161,6 +181,21 @@ class Database:
                          (date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, primer_type,
                           case_type, no_made, preps.strip(), notes, rating))
         self.con.commit()
+
+# Function to return values needed to populate log treeview
+
+    def view_log_treeview(self):
+        self.cur.execute("SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, "
+                         "primer_type, case_type, no_made, rating FROM log")
+        rows = self.cur.fetchall()
+        return rows
+
+# Function to return preparations text
+
+    def view_preparations(self, id):
+        self.cur.execute("SELECT preps FROM log WHERE lot=?", (id,))
+        data = self.cur.fetchall()
+        return data
 
     def __del__(self):
         self.con.close()
