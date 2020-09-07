@@ -1,10 +1,11 @@
+import os
 from functools import partial
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
 from datetime import date
-# import csv
+import csv
 from backend import Database
 
 db = Database("boom_log.db")
@@ -137,7 +138,7 @@ class Window(object):
         view_clear_search_button = Button(view_tab, text="View all", width=22, command=self.populate_log_treeview)
         view_clear_search_button.grid(row=7, column=11)
 
-        view_csv_button = Button(view_tab, text="Write log to CSV", width=22)
+        view_csv_button = Button(view_tab, text="Write log to CSV", width=22, command=create_csv_file)
         view_csv_button.grid(row=9, column=11)
 
         view_delete_button = Button(view_tab, text="Delete selected entry", width=22, command=self.delete_log_entry)
@@ -374,6 +375,8 @@ class Window(object):
 
         tab_parent.pack(expand=1, fill='both')
 
+    # Methods to maintain widgets on Add component tab
+
     def fill_text_box_for_editing_component(self, event):
         self.edit_component_entry.delete(0, END)
         item_iid = self.config_tree.selection()[0]
@@ -405,34 +408,37 @@ class Window(object):
     def log_fill_select_component_combobox(self):
         data = []
         narrow_by_combobox_ref = self.narrow_by_combobox.current()
-        if narrow_by_combobox_ref == 0:
-            data = ['Select above']
-        elif narrow_by_combobox_ref == 1:
-            data = dates_from_repository()
-        elif narrow_by_combobox_ref == 2:
-            data = guns_from_repository()
-        elif narrow_by_combobox_ref == 3:
-            data = calibres_from_repository()
-        elif narrow_by_combobox_ref == 4:
-            data = powder_types_from_repository()
-        elif narrow_by_combobox_ref == 5:
-            data = powder_weights_from_repository()
-        elif narrow_by_combobox_ref == 6:
-            data = bullet_types_from_repository()
-        elif narrow_by_combobox_ref == 7:
-            data = bullet_weights_from_repository()
-        elif narrow_by_combobox_ref == 8:
-            data = oals_from_repository()
-        elif narrow_by_combobox_ref == 9:
-            data = primers_from_repository()
-        elif narrow_by_combobox_ref == 10:
-            data = case_types_from_repository()
-        elif narrow_by_combobox_ref == 11:
-            data = ratings_from_repository()
-        self.narrowed_selection_combobox['values'] = data
-        return data
+        try:
+            if narrow_by_combobox_ref == 0:
+                data = ['Select above']
+            elif narrow_by_combobox_ref == 1:
+                data = dates_from_repository()
+            elif narrow_by_combobox_ref == 2:
+                data = guns_from_repository()
+            elif narrow_by_combobox_ref == 3:
+                data = calibres_from_repository()
+            elif narrow_by_combobox_ref == 4:
+                data = powder_types_from_repository()
+            elif narrow_by_combobox_ref == 5:
+                data = powder_weights_from_repository()
+            elif narrow_by_combobox_ref == 6:
+                data = bullet_types_from_repository()
+            elif narrow_by_combobox_ref == 7:
+                data = bullet_weights_from_repository()
+            elif narrow_by_combobox_ref == 8:
+                data = oals_from_repository()
+            elif narrow_by_combobox_ref == 9:
+                data = primers_from_repository()
+            elif narrow_by_combobox_ref == 10:
+                data = case_types_from_repository()
+            elif narrow_by_combobox_ref == 11:
+                data = ratings_from_repository()
+            self.narrowed_selection_combobox['values'] = data
+            return data
+        except IndexError:
+            print("Index out of bounds.")
 
-    # Method bound to Narrow by combobox to reset default value of Select combobox
+    # Method bound to Narrow by combobox to reset default value of Select combobox on View log tab
 
     def narrow_by_selected(self, event):
         self.narrowed_selection_combobox.set(self.log_fill_select_component_combobox()[0])
@@ -441,6 +447,9 @@ class Window(object):
 
     def populate_log_treeview(self):
         self.view_log_tree.delete(*self.view_log_tree.get_children())
+        self.narrow_by_combobox.current(0)
+        self.log_fill_select_component_combobox()
+        self.narrowed_selection_combobox.current(0)
         for row in db.view_log_treeview():
             db_date = row[1]
             formatted_date = db_date[8:10] + db_date[7] + db_date[5:7] + db_date[4] + db_date[0:4]
@@ -734,16 +743,6 @@ def delete_selected_component(component_combobox_ref, component_treeview, edit_c
         else:
             messagebox.showinfo('Cancelled', 'No changes were made to your repository.')
 
-
-def confirm_delete():
-    confirm_delete_info = messagebox.askquestion('Delete', 'Are you sure you want to delete this entry?',
-                                                 icon='warning')
-    if confirm_delete_info == 'yes':
-        pass
-    else:
-        pass
-
-
 # Functions to return all data from databases by type to populate comboboxes/treeviews etc.
 
 
@@ -896,6 +895,33 @@ def create_new_log_entry(gun_combobox, calibre_combobox, powder_type_combobox, p
                                        icon='warning')
     else:
         messagebox.showinfo('Cancelled', 'No changes were made to your log.')
+
+# Function to dump log data to CSV file named Reloading-log-dump-TODAY'S-DATE.csv with date adjusted to European format
+
+
+def create_csv_file():
+    confirm_dump = messagebox.askquestion('Confirm Export', 'Are you sure you want to save your log to a CSV file?',
+                                          icon='warning')
+    if confirm_dump == 'yes':
+        date_today = str(date.today())
+        date_today = date_today[8:10] + date_today[7] + date_today[5:7] + date_today[4] + date_today[0:4]
+        path = os.path.dirname(os.path.abspath(__file__))
+        csv_file = os.path.join(path, "Reloading-log-dump-" + date_today + ".csv")
+        csv_writer = csv.writer(open(csv_file, "w", newline=''), delimiter='\t')
+        headings = ['Lot', 'Date', 'Gun', 'Calibre', 'Powder type', 'Powder weight', 'Bullet type', 'Bullet weight',
+                    'OAL', 'Primer type', 'Case type', 'Number made', 'Preparations', 'Notes', 'Rating']
+        log_rows = []
+        csv_writer.writerow(headings)
+        try:
+            for row in db.all_log_entries():
+                log_rows.append(row)
+            csv_writer.writerows(log_rows)
+            messagebox.showinfo('Success', 'Your log has been saved to a CSV file.')
+        except:
+            messagebox.showwarning('Error', 'Something went wrong. Your log was not saved to a CSV file.',
+                                   icon='warning')
+    else:
+        messagebox.showinfo('Cancelled', 'Your log was not saved to a CSV file.')
 
 
 window = Tk()

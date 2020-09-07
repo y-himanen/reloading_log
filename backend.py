@@ -190,6 +190,13 @@ class Database:
         rows = self.cur.fetchall()
         return rows
 
+# Function to return all log entries for CSV dump
+
+    def all_log_entries(self):
+        self.cur.execute("SELECT * from log ORDER BY lot DESC")
+        rows = self.cur.fetchall()
+        return rows
+
 # Function to return preparations text
 
     def view_preparations(self, id):
