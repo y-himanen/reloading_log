@@ -470,7 +470,8 @@ class Window(object):
             try:
                 search_item = self.narrowed_selection_combobox.get()
                 if search_item_type == 1:
-                    selected_search = db.selected_date(search_item)
+                    db_date = search_item[6:10] + search_item[5] + search_item[3:5] + search_item[2] + search_item[0:2]
+                    selected_search = db.selected_date(db_date)
                 elif search_item_type == 2:
                     selected_search = db.selected_gun(search_item)
                 elif search_item_type == 3:
