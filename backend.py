@@ -197,6 +197,13 @@ class Database:
         data = self.cur.fetchall()
         return data
 
+# Function to return notes
+
+    def view_notes(self, id):
+        self.cur.execute("SELECT notes FROM log WHERE lot=?", (id,))
+        data = self.cur.fetchall()
+        return data
+
 # Function to update load rating
 
     def update_rating(self, id, rating):
@@ -205,8 +212,9 @@ class Database:
 
 # Function to add/update notes
 
-    def update_notes(self, id):
-        pass
+    def update_notes(self, id, notes):
+        self.cur.execute("UPDATE log SET notes=? WHERE lot=?", (notes, id))
+        self.con.commit()
 
 # Function to delete log entry
 

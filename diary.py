@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
 from datetime import date
+# import csv
 from backend import Database
 
 db = Database("boom_log.db")
@@ -17,6 +18,7 @@ class Window(object):
         self.window.wm_title("*BOOM* Log")
         self.window.resizable(0, 0)
         self.window.protocol('WM_DELETE_WINDOW', exit_application)
+        self.window.option_add("*Text.Font", "TkDefaultFont")
 
         # Create Notebook and tabs
 
@@ -28,7 +30,7 @@ class Window(object):
         tab_parent.add(view_tab, text="View log")
         tab_parent.add(entry_tab, text="Add entry")
         tab_parent.add(config_tab, text="Add components")
-        tab_parent.bind("<<NotebookTabChanged>>", self.trigger_populate_log_treeview)
+        tab_parent.bind("<<NotebookTabChanged>>", self.trigger_populate_log_treeview_and_reset_values)
 
         # App icon, attribution below
         # Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from
@@ -88,7 +90,7 @@ class Window(object):
         self.view_log_tree.heading("#13", text="Rating", anchor=W)  # text
         self.view_log_tree.column("#13", width=755, minwidth=70)
         self.view_log_tree.grid(row=2, column=0, rowspan=10, columnspan=10, padx=(20, 0), pady=(0, 10))
-        self.view_log_tree.bind("<<TreeviewSelect>>", self.display_preparations)
+        self.view_log_tree.bind("<<TreeviewSelect>>", self.display_preparations_and_notes)
 
         view_scrollbar = Scrollbar(view_tab)
         view_scrollbar.grid(row=2, column=10, rowspan=10, padx=(0, 10), sticky=N + S + W)
@@ -144,20 +146,20 @@ class Window(object):
         self.view_preps_label.grid(row=13, column=0, padx=(20, 0), pady=(30, 0), sticky=SW)
 
         self.preparations_text_from_db = StringVar()
-        self.view_preparations = Label(view_tab, height=3, width=107, relief="sunken", bg="white",
+        self.view_preparations = Label(view_tab, height=3, width=106, relief="sunken", bg="white",
                                        textvariable=self.preparations_text_from_db, anchor=NW, justify=LEFT, padx=7,
                                        pady=5)
-        self.view_preparations.grid(row=14, column=0, padx=(15, 0), pady=(0, 10), columnspan=10, sticky=N)
+        self.view_preparations.grid(row=14, column=0, padx=(20, 0), pady=(0, 10), columnspan=10, sticky=N)
 
         self.view_notes_label = Label(view_tab, text="Load notes:")
         self.view_notes_label.grid(row=17, column=0, padx=(20, 0), sticky=SW)
 
-        self.view_notes_text = Text(view_tab, height=4, width=94)
+        self.view_notes_text = Text(view_tab, height=4, width=124, padx=7, pady=5)
         self.view_notes_text.grid(row=18, column=0, padx=(20, 0), pady=(0, 20), columnspan=10)
 
-        view_edit_notes_button = Button(view_tab, text="Add notes/Save changes", width=22,
-                                        command=confirm_save)
-        view_edit_notes_button.grid(row=18, column=11, pady=(0, 20))
+        self.view_edit_notes_button = Button(view_tab, text="Add notes/Save changes", width=22,
+                                             command=self.update_notes)
+        self.view_edit_notes_button.grid(row=18, column=11, pady=(0, 20))
 
         self.view_add_star_rating_label = Label(view_tab, text="Add load rating:")
         self.view_add_star_rating_label.grid(row=19, column=0, padx=(20, 0), sticky=W)
@@ -444,17 +446,23 @@ class Window(object):
             self.view_log_tree.insert('', END, values=(row[0], formatted_date, row[2], row[3], row[4], row[5], row[6],
                                                        row[7], row[8], row[9], row[10], row[11], row[12]))
 
-    def trigger_populate_log_treeview(self, event):
+    def trigger_populate_log_treeview_and_reset_values(self, event):
         self.populate_log_treeview()
+        self.star_rating_combobox.current(0)
+        self.preparations_text_from_db.set("")
 
     # Method to add Preparations text from selected log entry (if available) to label in View log tab
 
-    def display_preparations(self, event):
+    def display_preparations_and_notes(self, event):
         item_iid = self.view_log_tree.selection()
         ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
         formatted_preps = str(db.view_preparations(ref_from_table)).replace("'", "").replace("(", "").replace(")", "")
         formatted_preps = formatted_preps.replace("[", "").replace("]", "")[:-1]
         self.preparations_text_from_db.set(formatted_preps)
+        self.view_notes_text.delete('1.0', END)
+        formatted_notes = str(db.view_notes(ref_from_table)).replace("'", "").replace("(", "").replace(")", "")
+        formatted_notes = formatted_notes.replace("[", "").replace("]", "")[:-1]
+        self.view_notes_text.insert(END, formatted_notes)
 
     # Method to add/edit rating in View log tab
 
@@ -476,6 +484,22 @@ class Window(object):
             else:
                 messagebox.showinfo('Cancelled', 'No changes were made to your log.')
         self.populate_log_treeview()
+
+    # Method to add/edit notes in View log tab
+
+    def update_notes(self):
+        item_iid = self.view_log_tree.selection()
+        confirm_notes = messagebox.askquestion('Confirm Add Notes', 'Are you sure you want to add these notes?',
+                                               icon='warning')
+        if confirm_notes == 'yes':
+            try:
+                ref_from_table = self.view_log_tree.item(item_iid)['values'][0]
+                db.update_notes(ref_from_table, self.view_notes_text.get('1.0', 'end-1c'))
+                messagebox.showinfo('Success', 'Notes successfully added to your log.')
+            except IndexError:
+                messagebox.showwarning('Error', 'You must select an entry to add notes.', icon='warning')
+        else:
+            messagebox.showinfo('Cancelled', 'No changes were made to your log.')
 
     # Method to delete log entry from View log tab
 
@@ -505,16 +529,6 @@ def exit_application():
         window.destroy()
     else:
         pass
-
-
-def confirm_save():
-    confirm_save_info = messagebox.askquestion('Save Changes', 'Are you sure you want to save your changes?',
-                                               icon='warning')
-    if confirm_save_info == 'yes':
-        pass
-    else:
-        pass
-
 
 # Add component function to add components to tables from Add components tab
 
