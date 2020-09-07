@@ -36,19 +36,19 @@ class Window(object):
         # App icon, attribution below
         # Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from
         # <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+        # Add full path name before conversion to .exe
 
-        self.window.iconbitmap("C:\\Users\\Yasmine\\Desktop\\ownProjects\\Python\\reloading_diary\\app_icon.ico")
+        self.window.iconbitmap("app_icon.ico")
 
         # Image for Add entry tab
 
-        parabellum_img = Image.open(
-            "C:\\Users\\Yasmine\\Desktop\\ownProjects\\Python\\reloading_diary\\parabellum_9.png")
+        parabellum_img = Image.open("parabellum_9.png")
         parabellum_img = parabellum_img.resize((550, 445), Image.ANTIALIAS)
         self.parabellum_image = ImageTk.PhotoImage(parabellum_img)
 
         # Image for Add component tab
 
-        target_img = Image.open("C:\\Users\\Yasmine\\Desktop\\ownProjects\\Python\\reloading_diary\\target.jpeg")
+        target_img = Image.open("target.jpeg")
         target_img = target_img.resize((400, 310), Image.ANTIALIAS)
         self.target_image = ImageTk.PhotoImage(target_img)
 
