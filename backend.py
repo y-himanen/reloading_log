@@ -204,6 +204,81 @@ class Database:
         data = self.cur.fetchall()
         return data
 
+# Functions to return log entries by selected date/component/measurement to populate Log treeview
+
+    def selected_date(self, date):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE date=? ORDER BY lot DESC', (date,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_gun(self, gun):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE gun=? ORDER BY lot DESC', (gun,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_calibre(self, calibre):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE calibre=? ORDER BY lot DESC',
+                         (calibre,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_powder_type(self, powder_type):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE powder_type=? ORDER BY lot DESC',
+                         (powder_type,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_powder_weight(self, powder_weight):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE powder_weight=? ORDER BY lot DESC',
+                         (powder_weight,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_bullet_type(self, bullet_type):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE bullet_type=? ORDER BY lot DESC',
+                         (bullet_type,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_bullet_weight(self, bullet_weight):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE bullet_weight=? ORDER BY lot DESC',
+                         (bullet_weight,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_oal(self, oal):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE oal=? ORDER BY lot DESC', (oal,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_primer_type(self, primer_type):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE primer_type=? ORDER BY lot DESC',
+                         (primer_type,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_case_type(self, case_type):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE case_type=? ORDER BY lot DESC',
+                         (case_type,))
+        rows = self.cur.fetchall()
+        return rows
+
+    def selected_rating(self, rating):
+        self.cur.execute('SELECT lot, date, gun, calibre, powder_type, powder_weight, bullet_type, bullet_weight, oal, '
+                         'primer_type, case_type, no_made, rating FROM log WHERE rating=? ORDER BY lot DESC', (rating,))
+        rows = self.cur.fetchall()
+        return rows
+
 # Function to update load rating
 
     def update_rating(self, id, rating):
