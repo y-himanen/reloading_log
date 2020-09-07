@@ -112,6 +112,7 @@ class Window(object):
         self.narrow_by_combobox = ttk.Combobox(view_tab, width=22, value=narrow_by, state='readonly')
         self.narrowed_selection_combobox = ttk.Combobox(view_tab, width=22, value=narrowed_selection, state='readonly',
                                                         postcommand=self.log_fill_select_component_combobox)
+        self.narrowed_selection_combobox.bind("<<ComboboxSelected>>", self.populate_log_treeview_with_selection)
         self.narrow_by_combobox['values'] = ['Select',
                                              'Date',
                                              'Gun',
@@ -450,6 +451,54 @@ class Window(object):
         self.populate_log_treeview()
         self.star_rating_combobox.current(0)
         self.preparations_text_from_db.set("")
+        self.view_notes_text.delete('1.0', END)
+        self.narrow_by_combobox.current(0)
+        self.log_fill_select_component_combobox()
+        self.narrowed_selection_combobox.current(0)
+
+    # Method to populate log treeview narrowed by user selection on View log tab
+
+    def populate_log_treeview_with_selection(self, event):
+        self.view_log_tree.delete(*self.view_log_tree.get_children())
+        self.star_rating_combobox.current(0)
+        self.preparations_text_from_db.set("")
+        self.view_notes_text.delete('1.0', END)
+        search_item_type = self.narrow_by_combobox.current()
+        if search_item_type == 0:
+            self.populate_log_treeview()
+        else:
+            try:
+                search_item = self.narrowed_selection_combobox.get()
+                if search_item_type == 1:
+                    selected_search = db.selected_date(search_item)
+                elif search_item_type == 2:
+                    selected_search = db.selected_gun(search_item)
+                elif search_item_type == 3:
+                    selected_search = db.selected_calibre(search_item)
+                elif search_item_type == 4:
+                    selected_search = db.selected_powder_type(search_item)
+                elif search_item_type == 5:
+                    selected_search = db.selected_powder_weight(search_item)
+                elif search_item_type == 6:
+                    selected_search = db.selected_bullet_type(search_item)
+                elif search_item_type == 7:
+                    selected_search = db.selected_bullet_weight(search_item)
+                elif search_item_type == 8:
+                    selected_search = db.selected_oal(search_item)
+                elif search_item_type == 9:
+                    selected_search = db.selected_primer_type(search_item)
+                elif search_item_type == 10:
+                    selected_search = db.selected_case_type(search_item)
+                elif search_item_type == 11:
+                    selected_search = db.selected_rating(search_item)
+                for row in selected_search:
+                    db_date = row[1]
+                    formatted_date = db_date[8:10] + db_date[7] + db_date[5:7] + db_date[4] + db_date[0:4]
+                    self.view_log_tree.insert('', END, values=(row[0], formatted_date, row[2], row[3], row[4], row[5],
+                                                               row[6], row[7], row[8], row[9], row[10], row[11],
+                                                               row[12]))
+            except IndexError:
+                print("Index out of bounds.")
 
     # Method to add Preparations text from selected log entry (if available) to label in View log tab
 
