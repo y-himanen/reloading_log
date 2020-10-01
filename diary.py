@@ -601,20 +601,15 @@ def add_component(component_type_combobox, component, component_entry_widget, co
         component_text = component.get()
         if len(component_text) != 0:
             try:
-                if component_type == 4:
-                    if isinstance(component_text, int):
-                        db.insert_bullet_weight(component_text)
-                    else:
-                        messagebox.showinfo('Error', 'Bullet weight must be an integer value. No changes were made to '
-                                                     'your repository.', icon='warning')
-                    view_components(component_treeview, component_type_combobox)
-                elif component_type != 0:
+                if component_type != 0:
                     if component_type == 1:
                         db.insert_gun(component_text)
                     elif component_type == 2:
                         db.insert_calibre(component_text)
                     elif component_type == 3:
                         db.insert_powder_type(component_text)
+                    if component_type == 4:
+                        db.insert_bullet_weight(component_text)
                     elif component_type == 5:
                         db.insert_bullet_type(component_text)
                     elif component_type == 6:
