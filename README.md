@@ -9,6 +9,8 @@ The GUI is built using the Python tkinter package. The program is written in Pyt
 
 # View log tab:
 
+![View log tab](https://github.com/y-himanen/reloading_log/blob/master/screenshots/Reloading-log-tab1.png)
+
 This is the tab that is visible when the user opens the program. The log treeview is automatically populated when the program is opened, returning a full list of all log entries. 
 
 The user can narrow the number of returned entries with different search variables, e.g. date/component/measurement. 
@@ -23,6 +25,8 @@ Opening the program for the first time automatically creates the required databa
 
 # Add entry tab:
 
+![Add entry tab](https://github.com/y-himanen/reloading_log/blob/master/screenshots/Reloading-log-tab2.png)
+
 This is where the user can create their log entries and save them to the database. 
 
 Entries are built using a combination of free text from the user and selections from the comboboxes. The comboboxes are populated with the components or measurements that the user has saved to the database on the Add components tab.  
@@ -34,6 +38,8 @@ The user will be prompted when data is entered in the incorrect format, or a req
 All fields are reset when the user has successfully saved an entry to the database.
 
 # Add components tab:
+
+![Add components tab](https://github.com/y-himanen/reloading_log/blob/master/screenshots/Reloading-log-tab3.png)
 
 On this tab, the user can add different standard parts and/or measurements to their repository. They also have the option to edit or delete entries from their repository. Entries made on this tab populate comboboxes on other tabs to create new log entries or search existing log entries.
 
